@@ -1,0 +1,12 @@
+node_modules
+.history
+yarn-error.log
+yarn.lock
+.idea
+client/dist/main.js
+client/dist/main.js.map
+client/dist/**/*.d.ts
+client/resources/
+server/room_password.txt
+server/build
+shared/*.js

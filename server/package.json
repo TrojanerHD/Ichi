@@ -1,0 +1,14 @@
+{
+    "name": "uno-server",
+    "version": "0.0.1",
+    "scripts": {
+        "compile": "tsc -p ."
+    },
+    "main": "build/index.js",
+    "dependencies": {
+        "@types/ws": "^7.2.1",
+        "cross-env": "^7.0.0",
+        "uno-shared": "0.0.1",
+        "ws": "^7.2.1"
+    }
+}

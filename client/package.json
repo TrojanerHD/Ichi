@@ -1,0 +1,26 @@
+{
+  "name": "uno-client",
+  "version": "0.0.1",
+  "dependencies": {
+    "@types/crypto-js": "^3.1.43",
+    "@types/jquery": "^3.3.32",
+    "cross-env": "^7.0.0",
+    "crypto-js": "^4.0.0",
+    "jquery": "^3.4.1",
+    "uno-shared": "0.0.1"
+  },
+  "scripts": {
+    "build:dev": "webpack",
+    "watch": "webpack --watch",
+    "run:dev": "webpack && webpack-dev-server"
+  },
+  "main": "dist/index.js",
+  "devDependencies": {
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3",
+    "webpack-node-externals": "^1.7.2"
+  }
+}

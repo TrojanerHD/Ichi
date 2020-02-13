@@ -1,0 +1,152 @@
+body {
+  background-color: #282828;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 25px;
+}
+
+div.card > div.number {
+  font-size: 60px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+div.card {
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+div#start {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: auto;
+}
+
+div.item.form {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+div.username:nth-child(even) {
+    background-color: #181818;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+div.input-text {
+  border-radius: 12px;
+  border: 1px solid black;
+  background-color: #121212;
+}
+
+input[type='text'],
+input[type='password'] {
+  background-color: #121212;
+  color: white;
+  border: none;
+
+  font-family: 'Roboto', sans-serif;
+  font-size: 25px;
+  margin: 10px;
+}
+
+input#submit {
+  margin-top: 5px;
+}
+
+input.btn {
+  background: #2196f3;
+  padding: 7.5pt 11.25pt;
+  border-radius: 2.25pt;
+  cursor: pointer;
+  border: none;
+  outline: none;
+
+  text-transform: uppercase;
+  font-size: 11pt;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  color: white;
+  -webkit-box-shadow: 0 1.125pt 3pt 0.75pt rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: 0 1.125pt 3pt 0.75pt rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1.125pt 3pt 0.75pt rgba(0, 0, 0, 0.25);
+}
+
+input.btn:hover {
+  background: rgb(21, 143, 243);
+}
+
+input.btn:active {
+  -webkit-box-shadow: 0 2.25pt 6pt 0.75pt rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0 2.25pt 6pt 0.75pt rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2.25pt 6pt 0.75pt rgba(0, 0, 0, 0.5);
+}
+
+input.btn-disabled {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 7.5pt 11.25pt;
+  border-radius: 2.25pt;
+  cursor: not-allowed;
+  border: none;
+  outline: none;
+
+  text-transform: uppercase;
+  font-size: 11pt;
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+::-moz-focus-inner {
+  border: none;
+}
+
+div.message {
+  padding: 10px 10px 10px 10px;
+  border-radius: 7px;
+  display: inline;
+}
+
+div.error-message {
+  background-color: darkred;
+}
+
+div.info-message {
+  background-color: green;
+}
+
+div.message-parent {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  text-align: center;
+  width: 100vw;
+  -webkit-animation: fadein 600ms; /* Safari 4.0 - 8.0 */
+  animation: fadein 600ms;
+}
+
+@keyframes fadein {
+  from {
+    top: -39px;
+  }
+  to {
+    top: 15px;
+  }
+}
+
+.hide {
+  display: none !important;
+}
