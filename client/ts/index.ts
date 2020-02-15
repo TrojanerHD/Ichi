@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { WebSocketClient } from './WebSocketClient';
 import SHA256 from 'crypto-js/sha256';
 import { Message } from './Message';
+import '../dist/css/index.css';
 
 const ws: WebSocketClient = new WebSocketClient();
 ws.connect();

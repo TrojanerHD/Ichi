@@ -21,13 +21,6 @@ module.exports = function(env, argv) {
 
     devtool: 'source-map',
 
-    externals: [
-      nodeExternals(),
-      nodeExternals({
-        modulesDir: path.resolve(__dirname, 'path/to/root/node_modules'),
-      }),
-    ],
-    
     devServer: {
       contentBase: path.join(__dirname, 'dist'),
       compress: true,
@@ -39,15 +32,20 @@ module.exports = function(env, argv) {
         {
           test: /\.ts$/,
           loader: 'ts-loader',
-          include: [
-            __dirname,
-            path.join(__dirname, '..', 'shared')
-          ],
+          include: [__dirname, path.join(__dirname, '..', 'shared')],
           exclude: [/node_modules/]
         },
         {
           test: /\.js$/,
           exclude: [/node_modules/]
+        },
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader']
+        },
+        {
+          test: /\.(png|svg|jpg|gif)$/,
+          use: ['file-loader']
         }
       ]
     },
@@ -70,8 +68,11 @@ module.exports = function(env, argv) {
       }
     },
     resolve: {
-      extensions: ['.js', '.ts'],
-      modules: ['node_modules', '../node_modules']
+      extensions: ['.js', '.ts', '.jpg'],
+      modules: ['node_modules', '../node_modules'],
+      alias: {
+        Resources: path.resolve(__dirname, 'resources')
+      }
     }
   };
 

@@ -10,7 +10,7 @@ export class DrawPile {
       CardColor.Blue,
       CardColor.Yellow
     ];
-    const cardNumbers: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    const cardNumbers: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     const specialCardTypes: CardType[] = [
       CardType.Skip,
       CardType.Reverse,
@@ -42,9 +42,14 @@ export class DrawPile {
         cardColor: CardColor.Black
       });
     }
-    console.table(this._cards);
+    this._cards = this._cards.sort(DrawPile.randomSort);
   }
 
-  //TODO add impl
-  getFirstCard() {}
+  private static randomSort() {  
+    return 0.5 - Math.random();
+  }
+
+  drawFirstCard(): Card {
+    return this._cards.pop();
+  }
 }

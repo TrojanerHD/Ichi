@@ -5,7 +5,7 @@ body {
   font-size: 25px;
 }
 
-div.card > div.number {
+div.card > div.symbol {
   font-size: 60px;
   position: absolute;
   top: 50%;
@@ -95,7 +95,7 @@ input.btn:active {
   box-shadow: 0 2.25pt 6pt 0.75pt rgba(0, 0, 0, 0.5);
 }
 
-input.btn-disabled {
+input[type=button]:disabled {
   background: rgba(0, 0, 0, 0.1);
   padding: 7.5pt 11.25pt;
   border-radius: 2.25pt;
