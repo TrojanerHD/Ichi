@@ -8,7 +8,7 @@ client/dist/main.js.map
 client/dist/**/*.d.ts
 client/dist/*.png
 client/dist/*.jpg
-client/resources/
+client/resources/concept.png
 server/room_password.txt
 server/build
 shared/*.js
