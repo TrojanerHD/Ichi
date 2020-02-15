@@ -68,12 +68,12 @@ export class WebSocketClient {
               player: valueValue,
               handCards: new HandCards()
             });
-            for (let i = 0; i < this._otherHandCards.length; i++) {
-              const handCards = this._otherHandCards[i];
-              if(handCards.player === valueValue) {
-                handCards.handCards.addCard(i + 2);
-              }
+          for (let i = 0; i < this._otherHandCards.length; i++) {
+            const handCards = this._otherHandCards[i];
+            if (handCards.player === valueValue) {
+              handCards.handCards.addCard(i + 2);
             }
+          }
           return;
         }
 
@@ -92,11 +92,18 @@ export class WebSocketClient {
   private displayAllUsernames(): void {
     let usernameString: string = '<div class="title">Users in room:</div>';
     for (const username of this._allPlayers)
-      usernameString += `<div class="username">${username}</div>`;
+      usernameString += `<div class="username">${WebSocketClient.encodeHTML(username)}</div>`;
     $('div.item.usernames').html(usernameString);
   }
 
   private static onStartGameClick() {
     WebSocketClient.sendMessage({ event: 'game-start-request', message: null });
+  }
+  
+  private static encodeHTML(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/"/g, '&quot;');
   }
 }
