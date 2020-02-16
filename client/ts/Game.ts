@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { CardStack } from './cards/CardStack';
+import Resources from './ResourceHelper';
 import { CardColor } from 'uno-shared';
 
 export enum CardStackType {
@@ -11,7 +11,10 @@ export enum CardStackType {
 export class Game {
   constructor() {
     $('div#start').addClass('hide');
-    const drawPile: CardStack = new CardStack(CardStackType.DrawPile);
-    let discardPile: CardStack;
+    $('body').append(
+      `<div class="center-cards"><div class="restock-pile"><img src="${
+        Resources[CardColor.Back]
+      }" alt="Back"/></div>`
+    );
   }
 }

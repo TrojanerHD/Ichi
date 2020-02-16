@@ -1,8 +1,10 @@
-import { WebSocketMessage, Card } from 'uno-shared';
+import { Card } from 'uno-shared';
 import { Message } from './Message';
 import $ from 'jquery';
 import { Game } from './Game';
 import { HandCards } from './cards/HandCards';
+import Resources from './ResourceHelper';
+
 interface otherHandCards {
   player: string;
   handCards: HandCards;
@@ -20,8 +22,8 @@ export class WebSocketClient {
     WebSocketClient._websocket.onmessage = this.onMessage.bind(this);
   }
 
-  static sendMessage(message: WebSocketMessage): void {
-    WebSocketClient._websocket.send(JSON.stringify(message));
+  static sendMessage(event: string, message: string): void {
+    WebSocketClient._websocket.send(JSON.stringify({ event, message }));
   }
 
   private onMessage(message: MessageEvent): void {
@@ -98,6 +100,41 @@ export class WebSocketClient {
         const card: Card = valueValue;
         this._handCards.addCard(1, card);
         break;
+      case 'error':
+        switch (this._value) {
+          case 'not-your-turn':
+            new Message('It is not your turn', 'error');
+            break;
+        }
+        break;
+      case 'card-played':
+        $(
+          `div.playerdeck.username-${
+            JSON.parse(this._value).username
+          } > playerdeck.child`
+        ).remove();
+        break;
+      case 'discard-stack-add-card':
+        let discardPile: JQuery<HTMLElement> = $('div.discard-pile');
+        if (discardPile.length === 0) {
+          $('div.center-cards').prepend('<div class="discard-pile"></div>');
+          discardPile = $('div.discard-pile');
+        }
+
+        discardPile.html(HandCards.generateCard(JSON.parse(this._value)));
+        break;
+      case 'remove-cards':
+        let player: string = '1';
+        if (this._value !== null)
+          for (let i = 0; i < this._otherHandCards.length; i++) {
+            const handCards = this._otherHandCards[i];
+            if (handCards.player === this._value) player = (i + 2).toString();
+          }
+          
+        $(
+          `div.playerdeck.player-${player} > div.playerdeck-child > div.card`
+        ).remove();
+        break;
     }
   }
 
@@ -105,16 +142,22 @@ export class WebSocketClient {
     for (let i: number = 0; i < this._otherHandCards.length; i++) {
       let playerDiv: JQuery<HTMLElement> = $(`body > div.player-${i + 2}`);
       if (playerDiv.length === 0) {
-        $('body').append(`<div class="playerdeck player-${i + 2}"><div class="playerdeck-child"></div></div>`);
+        $('body').append(
+          `<div class="playerdeck player-${i +
+            2}"><div class="playerdeck-child"></div></div>`
+        );
         playerDiv = $(`body > div.player-${i + 2}`);
       }
 
       const radians: number =
         ((2 * Math.PI) / this._allPlayers.length) * (i + 1);
-        const vh: number = Math.floor(0.5 + Math.cos(radians) * 50 + 50);
+      const vh: number = Math.floor(0.5 + Math.cos(radians) * 50 + 50);
       playerDiv.css(
         'transform',
-        `rotate(${360 - (360 / this._allPlayers.length) * (i + 1)}deg) translateY(${-Math.abs(vh)}%)`
+        `rotate(${360 -
+          (360 / this._allPlayers.length) * (i + 1)}deg) translateY(${-Math.abs(
+          vh
+        )}%)`
       );
       playerDiv.css('top', `${vh}vh`);
       playerDiv.css('left', `${Math.floor(0.5 + Math.sin(radians) * 50)}vw`);
@@ -131,7 +174,7 @@ export class WebSocketClient {
   }
 
   private static onStartGameClick() {
-    WebSocketClient.sendMessage({ event: 'game-start-request', message: null });
+    WebSocketClient.sendMessage('game-start-request', null);
   }
 
   private static encodeHTML(s: string): string {

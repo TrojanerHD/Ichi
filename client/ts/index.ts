@@ -22,9 +22,9 @@ function onSubmit(event: Event) {
     return;
   }
   ws._username = username;
-  WebSocketClient.sendMessage({
-    event: 'login',
-    message: JSON.stringify({
+  WebSocketClient.sendMessage(
+    'login',
+    JSON.stringify({
       username: $('input#username')
         .val()
         .toString(),
@@ -34,5 +34,5 @@ function onSubmit(event: Event) {
           .toString()
       ).toString()
     })
-  });
+  );
 }

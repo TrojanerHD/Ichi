@@ -3,6 +3,7 @@ body {
   color: white;
   font-family: 'Roboto', sans-serif;
   font-size: 25px;
+  overflow: hidden;
 }
 
 div.card > div.card-child > div.symbol {
@@ -19,7 +20,15 @@ div.playerdeck {
   width: 100vw;
 }
 
-div.playerdeck.player-1 > div.playerdeck-child > div.card > div.card-child > img {
+div.playerdeck.player-1
+  > div.playerdeck-child
+  > div.card
+  > div.card-child
+  > img {
+  width: auto;
+}
+
+div.discard-pile > div.card > div.card-child > img {
   width: auto;
 }
 
@@ -55,6 +64,10 @@ div.card {
   color: black;
 }
 
+div.restock-pile:hover {
+  cursor: pointer;
+}
+
 div.playerdeck.player-1 > div.playerdeck-child {
   max-width: none;
 }
@@ -66,6 +79,7 @@ div.playerdeck-child {
 
 div.playerdeck.player-1 > div.playerdeck-child > div.card:hover {
   z-index: 1;
+  cursor: pointer;
 }
 
 div#start {
@@ -197,4 +211,21 @@ div.message-parent {
 
 .hide {
   display: none !important;
+}
+
+div.center-cards {
+  text-align: center;
+  width: 100vw;
+  position: absolute;
+  top: 50vh;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+div.center-cards > * {
+  display: inline;
+}
+
+div.discard-pile {
+  margin-right: 50px;
 }

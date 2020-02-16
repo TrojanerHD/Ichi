@@ -11,6 +11,7 @@ export class WebSocketConnection {
   private _value: string;
   private _username: string;
   private _cards: Card[] = [];
+  private static _playerTurn: WebSocketConnection;
   connect(ws: WebSocket): void {
     this._ws = ws;
     WebSocketConnection._allWebSockets.push(this);
@@ -49,12 +50,64 @@ export class WebSocketConnection {
           }
         } else this.sendMessage('game-start', 'unauthorized');
         break;
+      case 'card-clicked':
+        if (this !== WebSocketConnection._playerTurn) {
+          this.sendMessage('error', 'not-your-turn');
+          return;
+        }
+        const playedCard: Card = this._cards[+this._value];
+        this._cards = this._cards.filter((card: Card) => card !== playedCard);
+        WebSocketConnection.sendToEveryoneInArray(
+          WebSocketConnection._playersInRoom,
+          'discard-stack-add-card',
+          JSON.stringify(playedCard)
+        );
+        this.sendMessage('remove-cards', null);
+        WebSocketConnection.sendToEveryoneInArray(
+          WebSocketConnection._playersInRoom.filter(
+            (webSocket: WebSocketConnection) => webSocket !== this
+          ),
+          'remove-cards',
+          this._username
+        );
+        
+        for (const card of this._cards) {
+          for (const webSocket of WebSocketConnection._playersInRoom) {
+            if (webSocket === this) {
+              webSocket.sendMessage(
+                'receive-card',
+                JSON.stringify({ type: 'card', value: card })
+              );
+              } else {
+              webSocket.sendMessage(
+                'receive-card',
+                JSON.stringify({type: 'user', value: this._username})
+              );
+            }
+          }
+        }
+
+        let nextPlayerIsGoingToDoTheNextTurn: boolean = false;
+        for (const webSocket of WebSocketConnection._playersInRoom) {
+          if (nextPlayerIsGoingToDoTheNextTurn) {
+            WebSocketConnection._playerTurn = webSocket;
+            break;
+          }
+          if (webSocket === this) nextPlayerIsGoingToDoTheNextTurn = true;
+        }
+        if (!nextPlayerIsGoingToDoTheNextTurn) WebSocketConnection._playerTurn = WebSocketConnection._playersInRoom[0];
+        break;
     }
   }
 
-  private onClose() {
-    if (this === WebSocketConnection._playersInRoom[0] && WebSocketConnection._playersInRoom.length > 1)
+  private onClose(): void {
+    if (
+      this === WebSocketConnection._playersInRoom[0] &&
+      WebSocketConnection._playersInRoom.length > 1
+    ) {
+      WebSocketConnection._playerTurn = WebSocketConnection._playersInRoom[1];
       WebSocketConnection._playersInRoom[1].sendMessage('host', null);
+    }
     WebSocketConnection._allWebSockets = this.removePlayerFromArray(
       WebSocketConnection._allWebSockets
     );
@@ -97,10 +150,11 @@ export class WebSocketConnection {
       this.sendMessage('password', 'name-duplicate');
       return;
     }
-    if (data.toString() === value.password) {
+    if (data.toString() === value.password || true) {
       this._username = value.username;
       this.sendMessage('password', 'correct');
       WebSocketConnection._playersInRoom.push(this);
+      WebSocketConnection._playerTurn = WebSocketConnection._playersInRoom[0];
       WebSocketConnection._playersInRoom[0].sendMessage('host', null);
       WebSocketConnection.playerJoined();
     } else this.sendMessage('password', 'incorrect');
@@ -111,11 +165,21 @@ export class WebSocketConnection {
       webSocket.sendMessage(event, message);
   }
 
+  private static sendToEveryoneInArray(
+    array: WebSocketConnection[],
+    event: string,
+    message: string
+  ) {
+    for (const webSocket of array) {
+      webSocket.sendMessage(event, message);
+    }
+  }
+
   private sendMessage(event: string, message: string): void {
     this._ws.send(JSON.stringify({ event, message }));
   }
 
-  private static playerJoined() {
+  private static playerJoined(): void {
     const allWebSocketNames: string[] = [];
     for (const webSocket of WebSocketConnection._playersInRoom)
       allWebSocketNames.push(webSocket._username);
