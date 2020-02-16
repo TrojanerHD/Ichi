@@ -12,3 +12,5 @@ client/resources/concept.png
 server/room_password.txt
 server/build
 shared/*.js
+client/resources/cards/deprecated
+client/resources/symbols/deprecated

@@ -5,19 +5,67 @@ body {
   font-size: 25px;
 }
 
-div.card > div.symbol {
-  font-size: 60px;
+div.card > div.card-child > div.symbol {
+  font-size: 77px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
+div.playerdeck {
+  position: absolute;
+  text-align: center;
+  width: 100vw;
+}
+
+div.playerdeck.player-1 > div.playerdeck-child > div.card > div.card-child > img {
+  width: auto;
+}
+
+div.card > div.card-child > img {
+  width: 100px;
+}
+
+div.playerdeck.player-1 {
+  bottom: 0;
+  left: 0;
+}
+
+div.card > div.card-child > div.symbol.blue {
+  color: #0004a7;
+}
+
+div.card > div.card-child > div.symbol.yellow {
+  color: #ffb22c;
+}
+
+div.card > div.card-child > div.symbol.green {
+  color: #077c00;
+}
+
+div.card > div.card-child > div.symbol.red {
+  color: #ff0000;
+}
+
 div.card {
   display: inline-block;
   position: relative;
   text-align: center;
-  color: white;
+  color: black;
+}
+
+div.playerdeck.player-1 > div.playerdeck-child {
+  max-width: none;
+}
+
+div.playerdeck-child {
+  display: inline-block;
+  max-width: 1000px;
+}
+
+div.playerdeck.player-1 > div.playerdeck-child > div.card:hover {
+  z-index: 1;
 }
 
 div#start {
@@ -38,7 +86,7 @@ div.item.form {
 }
 
 div.username:nth-child(even) {
-    background-color: #181818;
+  background-color: #181818;
 }
 
 label {
@@ -95,7 +143,7 @@ input.btn:active {
   box-shadow: 0 2.25pt 6pt 0.75pt rgba(0, 0, 0, 0.5);
 }
 
-input[type=button]:disabled {
+input[type='button']:disabled {
   background: rgba(0, 0, 0, 0.1);
   padding: 7.5pt 11.25pt;
   border-radius: 2.25pt;

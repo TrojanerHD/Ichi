@@ -41,7 +41,10 @@ export class WebSocketConnection {
               for (const player of WebSocketConnection._playersInRoom.filter(
                 (player: WebSocketConnection) => player !== webSocket
               ))
-                player.sendMessage('receive-card', JSON.stringify({type: 'user', value: webSocket._username}));
+                player.sendMessage(
+                  'receive-card',
+                  JSON.stringify({ type: 'user', value: webSocket._username })
+                );
             }
           }
         } else this.sendMessage('game-start', 'unauthorized');
@@ -50,6 +53,8 @@ export class WebSocketConnection {
   }
 
   private onClose() {
+    if (this === WebSocketConnection._playersInRoom[0] && WebSocketConnection._playersInRoom.length > 1)
+      WebSocketConnection._playersInRoom[1].sendMessage('host', null);
     WebSocketConnection._allWebSockets = this.removePlayerFromArray(
       WebSocketConnection._allWebSockets
     );
@@ -96,6 +101,7 @@ export class WebSocketConnection {
       this._username = value.username;
       this.sendMessage('password', 'correct');
       WebSocketConnection._playersInRoom.push(this);
+      WebSocketConnection._playersInRoom[0].sendMessage('host', null);
       WebSocketConnection.playerJoined();
     } else this.sendMessage('password', 'incorrect');
   }
