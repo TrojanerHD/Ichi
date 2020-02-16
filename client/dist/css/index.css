@@ -32,6 +32,10 @@ div.discard-pile > div.card > div.card-child > img {
   width: auto;
 }
 
+label.checkbox {
+  display: inline;
+}
+
 div.card > div.card-child > img {
   width: 100px;
 }

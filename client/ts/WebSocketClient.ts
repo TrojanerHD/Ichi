@@ -1,7 +1,6 @@
-import { Card } from 'uno-shared';
+import { Card, CardColor, CardType } from 'uno-shared';
 import { Message } from './Message';
 import $ from 'jquery';
-import { Game } from './Game';
 import { HandCards } from './cards/HandCards';
 import Resources from './ResourceHelper';
 
@@ -36,6 +35,11 @@ export class WebSocketClient {
             $('div.item.form').html(
               `<input type="button" id="start-game" value="Waiting for host" disabled/>`
             );
+            $('div.item.rules').html(
+              '<div class="title">Rules</div><input type="checkbox" id="stack-plus-cards" checked disabled>\
+              <label for="stack-plus-cards" class="checkbox">Stack +2/+4</label>'
+            );
+
             break;
           case 'incorrect':
             new Message('Incorrect password', 'error');
@@ -82,7 +86,15 @@ export class WebSocketClient {
           new Message('You have hacked! That is not nice!', 'error');
           return;
         }
-        new Game();
+        $('div#start').addClass('hide');
+        $('body').append(
+          `<div class="center-cards"><div class="restock-pile"><img src="${
+            Resources[CardColor.Back]
+          }" alt="Back"/></div>`
+        );
+        $('div.restock-pile > img').on('click', () =>
+          WebSocketClient.sendMessage('draw-card', null)
+        );
         this.orderOtherHandCards();
         break;
       case 'receive-card':
@@ -104,6 +116,9 @@ export class WebSocketClient {
         switch (this._value) {
           case 'not-your-turn':
             new Message('It is not your turn', 'error');
+            break;
+          case 'card-cannot-be-played':
+            new Message('This card cannot be played', 'error');
             break;
         }
         break;
@@ -130,10 +145,13 @@ export class WebSocketClient {
             const handCards = this._otherHandCards[i];
             if (handCards.player === this._value) player = (i + 2).toString();
           }
-          
+
         $(
           `div.playerdeck.player-${player} > div.playerdeck-child > div.card`
         ).remove();
+        break;
+      case 'black-card':
+        //TODO: Implement black card handling
         break;
     }
   }

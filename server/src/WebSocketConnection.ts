@@ -1,6 +1,6 @@
 import * as WebSocket from 'ws';
 import * as fs from 'fs';
-import { Card } from 'uno-shared';
+import { Card, CardType } from 'uno-shared';
 import * as _ from 'lodash';
 import { DrawPile } from './DrawPile';
 
@@ -12,6 +12,9 @@ export class WebSocketConnection {
   private _username: string;
   private _cards: Card[] = [];
   private static _playerTurn: WebSocketConnection;
+  static _drawPile: DrawPile;
+  private static _discardPileCard: Card;
+  private static _playingDirectionReversed: boolean = false;
   connect(ws: WebSocket): void {
     this._ws = ws;
     WebSocketConnection._allWebSockets.push(this);
@@ -29,34 +32,56 @@ export class WebSocketConnection {
         break;
       case 'game-start-request':
         if (WebSocketConnection._playersInRoom[0] === this) {
-          const drawPile: DrawPile = new DrawPile();
+          WebSocketConnection._drawPile = new DrawPile();
           for (const webSocket of WebSocketConnection._playersInRoom) {
             webSocket.sendMessage('game-start', null);
-            for (let i = 0; i < 7; i++) {
-              const firstCard: Card = drawPile.drawFirstCard();
-              webSocket._cards.push(firstCard);
-              webSocket.sendMessage(
-                'receive-card',
-                JSON.stringify({ type: 'card', value: firstCard })
-              );
-              for (const player of WebSocketConnection._playersInRoom.filter(
-                (player: WebSocketConnection) => player !== webSocket
-              ))
-                player.sendMessage(
-                  'receive-card',
-                  JSON.stringify({ type: 'user', value: webSocket._username })
-                );
-            }
+            for (let i = 0; i < 7; i++) webSocket.drawCard();
           }
+          WebSocketConnection._discardPileCard = WebSocketConnection._drawPile.drawFirstCard();
+          WebSocketConnection.sendToEveryoneInArray(
+            WebSocketConnection._playersInRoom,
+            'discard-stack-add-card',
+            JSON.stringify(WebSocketConnection._discardPileCard)
+          );
         } else this.sendMessage('game-start', 'unauthorized');
         break;
       case 'card-clicked':
-        if (this !== WebSocketConnection._playerTurn) {
-          this.sendMessage('error', 'not-your-turn');
+        if (!this.checkTurn()) return;
+        const playedCard: Card = this._cards[+this._value];
+
+        const blackCard: boolean =
+          playedCard.cardType === CardType.ChooseColor ||
+          playedCard.cardType === CardType.Take4 ||
+          WebSocketConnection._discardPileCard.cardType ===
+            CardType.ChooseColor ||
+          WebSocketConnection._discardPileCard.cardType === CardType.Take4;
+
+        const bothNumbers: boolean =
+          WebSocketConnection._discardPileCard.cardType === CardType.Number &&
+          playedCard.cardType === CardType.Number;
+
+        const notSameCardType: boolean =
+          WebSocketConnection._discardPileCard.cardType !== playedCard.cardType;
+
+        const notSameColor: boolean =
+          WebSocketConnection._discardPileCard.cardColor !==
+          playedCard.cardColor;
+
+        const notSameNumbers: boolean =
+          WebSocketConnection._discardPileCard.cardNumber !==
+          playedCard.cardNumber;
+
+        if (
+          !blackCard &&
+          (bothNumbers || notSameCardType) &&
+          notSameColor &&
+          notSameNumbers
+        ) {
+          this.sendMessage('error', 'card-cannot-be-played');
           return;
         }
-        const playedCard: Card = this._cards[+this._value];
         this._cards = this._cards.filter((card: Card) => card !== playedCard);
+        WebSocketConnection._discardPileCard = playedCard;
         WebSocketConnection.sendToEveryoneInArray(
           WebSocketConnection._playersInRoom,
           'discard-stack-add-card',
@@ -70,32 +95,22 @@ export class WebSocketConnection {
           'remove-cards',
           this._username
         );
-        
-        for (const card of this._cards) {
-          for (const webSocket of WebSocketConnection._playersInRoom) {
-            if (webSocket === this) {
-              webSocket.sendMessage(
-                'receive-card',
-                JSON.stringify({ type: 'card', value: card })
-              );
-              } else {
-              webSocket.sendMessage(
-                'receive-card',
-                JSON.stringify({type: 'user', value: this._username})
-              );
-            }
-          }
-        }
-
-        let nextPlayerIsGoingToDoTheNextTurn: boolean = false;
-        for (const webSocket of WebSocketConnection._playersInRoom) {
-          if (nextPlayerIsGoingToDoTheNextTurn) {
-            WebSocketConnection._playerTurn = webSocket;
-            break;
-          }
-          if (webSocket === this) nextPlayerIsGoingToDoTheNextTurn = true;
-        }
-        if (!nextPlayerIsGoingToDoTheNextTurn) WebSocketConnection._playerTurn = WebSocketConnection._playersInRoom[0];
+        this.receiveCards();
+        if (playedCard.cardType === CardType.Reverse)
+          WebSocketConnection._playingDirectionReversed = !WebSocketConnection._playingDirectionReversed;
+          // Commented out for the commit; this is the WIP for the black cards
+        /* if (
+          playedCard.cardType === CardType.ChooseColor ||
+          playedCard.cardType === CardType.Take4
+        ) {
+          this.sendMessage('black-card', null);
+        } */
+        this.nextTurn(playedCard);
+        break;
+      case 'draw-card':
+        if (!this.checkTurn()) return;
+        this.drawCard();
+        this.nextTurn();
         break;
     }
   }
@@ -187,5 +202,71 @@ export class WebSocketConnection {
       'player-joined',
       JSON.stringify(allWebSocketNames)
     );
+  }
+
+  private receiveCards(): void {
+    for (const card of this._cards) {
+      for (const webSocket of WebSocketConnection._playersInRoom) {
+        if (webSocket === this)
+          webSocket.sendMessage(
+            'receive-card',
+            JSON.stringify({ type: 'card', value: card })
+          );
+        else
+          webSocket.sendMessage(
+            'receive-card',
+            JSON.stringify({ type: 'user', value: this._username })
+          );
+      }
+    }
+  }
+
+  private drawCard() {
+    const firstCard: Card = WebSocketConnection._drawPile.drawFirstCard();
+    this._cards.push(firstCard);
+    this.sendMessage(
+      'receive-card',
+      JSON.stringify({ type: 'card', value: firstCard })
+    );
+    for (const player of WebSocketConnection._playersInRoom.filter(
+      (player: WebSocketConnection) => player !== this
+    ))
+      player.sendMessage(
+        'receive-card',
+        JSON.stringify({ type: 'user', value: this._username })
+      );
+  }
+
+  private nextTurn(playedCard?: Card): void {
+    for (
+      let i: number = 0;
+      i < WebSocketConnection._playersInRoom.length;
+      i++
+    ) {
+      const webSocket: WebSocketConnection =
+        WebSocketConnection._playersInRoom[i];
+      if (webSocket === WebSocketConnection._playerTurn) {
+        if (!WebSocketConnection._playingDirectionReversed)
+          WebSocketConnection._playerTurn =
+            WebSocketConnection._playersInRoom.length - 1 >= i + 1
+              ? WebSocketConnection._playersInRoom[i + 1]
+              : WebSocketConnection._playersInRoom[0];
+        else
+          WebSocketConnection._playerTurn =
+            i - 1 >= 0
+              ? WebSocketConnection._playersInRoom[i - 1]
+              : WebSocketConnection._playersInRoom[
+                  WebSocketConnection._playersInRoom.length - 1
+                ];
+        break;
+      }
+    }
+    if (playedCard && playedCard.cardType === CardType.Skip) this.nextTurn();
+  }
+
+  private checkTurn(): boolean {
+    const playerTurn: boolean = this === WebSocketConnection._playerTurn;
+    if (!playerTurn) this.sendMessage('error', 'not-your-turn');
+    return playerTurn;
   }
 }
