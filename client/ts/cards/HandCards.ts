@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { WebSocketClient } from '../WebSocketClient';
 
 export class HandCards {
-  addCard(context: number, card?: Card) {
+  public addCard(context: number, card?: Card) {
     let playerDiv: JQuery<HTMLElement> = $(
       `body > div.player-${context} > div.playerdeck-child`
     );
@@ -59,7 +59,7 @@ export class HandCards {
     );
   }
 
-  static generateCard(card: Card): string {
+  public static generateCard(card: Card): string {
     let typeAndNumber: { type: 'image' | 'number'; value: string } = {
       type: undefined,
       value: undefined

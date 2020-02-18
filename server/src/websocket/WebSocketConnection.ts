@@ -2,20 +2,26 @@ import * as WebSocket from 'ws';
 import * as fs from 'fs';
 import { Card, CardType } from 'uno-shared';
 import * as _ from 'lodash';
-import { DrawPile } from './DrawPile';
+import { DrawPile } from '../DrawPile';
 
 export class WebSocketConnection {
-  private _ws: WebSocket;
-  private static _allWebSockets: WebSocketConnection[] = [];
-  private static _playersInRoom: WebSocketConnection[] = [];
-  private _value: string;
-  private _username: string;
-  private _cards: Card[] = [];
-  private static _playerTurn: WebSocketConnection;
-  static _drawPile: DrawPile;
   private static _discardPileCard: Card;
   private static _playingDirectionReversed: boolean = false;
-  connect(ws: WebSocket): void {
+  private static _allWebSockets: WebSocketConnection[] = [];
+  private static _playersInRoom: WebSocketConnection[] = [];
+  private static _playerTurn: WebSocketConnection;
+  private static _drawPile: DrawPile;
+
+  private _ws: WebSocket;
+  private _value: string;
+  private _username: string;
+  private _cards: Card[];
+
+  constructor() {
+    this._cards = [];
+  }
+
+  public connect(ws: WebSocket): void {
     this._ws = ws;
     WebSocketConnection._allWebSockets.push(this);
     WebSocketConnection.playerJoined();
@@ -24,9 +30,10 @@ export class WebSocketConnection {
   }
 
   private onMessage(message: string): void {
-    const event: string = JSON.parse(message).event;
-    this._value = JSON.parse(message).message;
-    switch (event) {
+    const json: any = JSON.parse(message);
+    this._value = json.message;
+
+    switch (json.event) {
       case 'login':
         fs.readFile('./room_password.txt', this.onFileRead.bind(this));
         break;
