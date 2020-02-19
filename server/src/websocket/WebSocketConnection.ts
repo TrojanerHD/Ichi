@@ -88,10 +88,7 @@ export class WebSocketConnection {
         break;
       case 'card-clicked':
         if (!this.checkTurn()) return;
-        if (this._blackCard) {
-          this.sendMessage('error', 'card-cannot-be-played');
-          return;
-        }
+
         const playedCard: Card = this._cards[+this._value];
 
         const blackCard: boolean =
@@ -164,12 +161,12 @@ export class WebSocketConnection {
         }
         break;
       case 'draw-card':
-        if (!this.checkTurn()) return;
+        if (!this.checkTurn(true)) return;
         this.drawCard();
         this.nextTurn();
         break;
       case 'choose-color':
-        WebSocketConnection._discardPileCard.cardColor = Object.values(CardColor).find((value: CardColor) => value === this._value);
+        WebSocketConnection._discardPileCard.cardColor = CardColor[this._value];
         this._blackCard = false;
         break;
     }
@@ -317,9 +314,11 @@ export class WebSocketConnection {
     if (playedCard && playedCard.cardType === CardType.Skip) this.nextTurn();
   }
 
-  private checkTurn(): boolean {
+  private checkTurn(draw: boolean = false): boolean {
     const playerTurn: boolean = this === WebSocketConnection._playerTurn;
+    if (this._blackCard)
+      this.sendMessage('error', draw ? 'cannot-draw' : 'card-cannot-be-played');
     if (!playerTurn) this.sendMessage('error', 'not-your-turn');
-    return playerTurn;
+    return playerTurn && !this._blackCard;
   }
 }
