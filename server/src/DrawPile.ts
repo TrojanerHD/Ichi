@@ -1,9 +1,11 @@
 import { Card, CardColor, CardType } from 'uno-shared';
 
 export class DrawPile {
-  private _cards: Card[] = [];
+  private _cards: Card[];
 
   constructor() {
+    this._cards = [];
+
     const colors: CardColor[] = [
       CardColor.Red,
       CardColor.Green,
@@ -49,7 +51,7 @@ export class DrawPile {
     return 0.5 - Math.random();
   }
 
-  drawFirstCard(): Card {
+  public drawFirstCard(): Card {
     return this._cards.pop();
   }
 }

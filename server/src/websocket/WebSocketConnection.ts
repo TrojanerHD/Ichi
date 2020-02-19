@@ -1,24 +1,29 @@
 import * as WebSocket from 'ws';
 import * as fs from 'fs';
-import { Card, CardType, CardColor } from 'uno-shared';
+import { Card, CardType, CardColor, WebSocketMessage } from 'uno-shared';
 import * as _ from 'lodash';
-import { DrawPile } from './DrawPile';
+import { DrawPile } from '../DrawPile';
 
 export class WebSocketConnection {
-  private _ws: WebSocket;
-  private static _allWebSockets: WebSocketConnection[] = [];
-  private static _playersInRoom: WebSocketConnection[] = [];
-  private _value: string;
-  private _username: string;
-  private _cards: Card[] = [];
-  private static _playerTurn: WebSocketConnection;
-  static _drawPile: DrawPile;
   private static _discardPileCard: Card;
   private static _playingDirectionReversed: boolean = false;
+  private static _allWebSockets: WebSocketConnection[] = [];
+  private static _playersInRoom: WebSocketConnection[] = [];
+  private static _playerTurn: WebSocketConnection;
+  private static _drawPile: DrawPile;
   private static _isPlaying: boolean = false;
+
+  private _ws: WebSocket;
+  private _value: string;
+  private _username: string;
+  private _cards: Card[];
   private _blackCard: boolean = false;
 
-  connect(ws: WebSocket): void {
+  constructor() {
+    this._cards = [];
+  }
+
+  public connect(ws: WebSocket): void {
     this._ws = ws;
     if (WebSocketConnection._isPlaying) {
       this.sendMessage('is-playing', null);
@@ -31,9 +36,10 @@ export class WebSocketConnection {
   }
 
   private onMessage(message: string): void {
-    const event: string = JSON.parse(message).event;
-    this._value = JSON.parse(message).message;
-    switch (event) {
+    const json: WebSocketMessage = JSON.parse(message);
+    this._value = json.message;
+
+    switch (json.event) {
       case 'login':
         const login: { username: string; password: string } = JSON.parse(
           this._value

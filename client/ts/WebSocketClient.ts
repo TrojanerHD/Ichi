@@ -11,17 +11,20 @@ interface otherHandCards {
 
 export class WebSocketClient {
   private static _websocket: WebSocket;
+
   private _allPlayers: string[] = [];
   private _handCards: HandCards = new HandCards();
   private _otherHandCards: otherHandCards[] = [];
   private _value: string;
-  _username: string;
+  private _username: string;
+
   connect(): void {
     WebSocketClient._websocket = new WebSocket('ws://localhost:1337');
     WebSocketClient._websocket.onmessage = this.onMessage.bind(this);
+    WebSocketClient._websocket.onerror = this.onError.bind(this);
   }
 
-  static sendMessage(event: string, message: string): void {
+  public static sendMessage(event: string, message: string): void {
     WebSocketClient._websocket.send(JSON.stringify({ event, message }));
   }
 
@@ -185,6 +188,10 @@ export class WebSocketClient {
     }
   }
 
+  private onError(error: ErrorEvent): void {
+    new Message('A websocket error has occurred', 'error');
+  }
+
   private orderOtherHandCards() {
     for (let i: number = 0; i < this._otherHandCards.length; i++) {
       let playerDiv: JQuery<HTMLElement> = $(`body > div.player-${i + 2}`);
@@ -247,5 +254,8 @@ export class WebSocketClient {
     else if (x > middleX && y > middleY) color = CardColor.Green;
     else color = CardColor.Yellow;
     WebSocketClient.sendMessage('choose-color', color);
+  }
+  set username(username: string) {
+    this._username = username;
   }
 }
