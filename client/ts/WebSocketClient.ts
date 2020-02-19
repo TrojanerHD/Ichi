@@ -159,7 +159,7 @@ export class WebSocketClient {
     }
   }
 
-  private onError(error: ErrorEvent){
+  private onError(error: ErrorEvent): void {
     new Message('A websocket error has occurred', 'error');
   }
 
