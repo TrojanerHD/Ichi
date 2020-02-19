@@ -12,6 +12,10 @@ import SkipYellow from 'Resources/symbols/skip_yellow.png';
 import SkipBlue from 'Resources/symbols/skip_blue.png';
 import SkipRed from 'Resources/symbols/skip_red.png';
 import SkipGreen from 'Resources/symbols/skip_green.png';
+import ChooseColorBlue from 'Resources/symbols/choose-color/blue.png';
+import ChooseColorYellow from 'Resources/symbols/choose-color/yellow.png';
+import ChooseColorRed from 'Resources/symbols/choose-color/red.png';
+import ChooseColorGreen from 'Resources/symbols/choose-color/green.png';
 import { CardColor, CardType } from 'uno-shared';
 
 export default {
@@ -32,5 +36,11 @@ export default {
     [CardColor.Blue]: SkipBlue,
     [CardColor.Red]: SkipRed,
     [CardColor.Green]: SkipGreen    
+  },
+  'choose-color': {
+    [CardColor.Yellow]: ChooseColorYellow,
+    [CardColor.Blue]: ChooseColorBlue,
+    [CardColor.Red]: ChooseColorRed,
+    [CardColor.Green]: ChooseColorGreen
   }
 };

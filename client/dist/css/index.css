@@ -233,3 +233,7 @@ div.center-cards > * {
 div.discard-pile {
   margin-right: 50px;
 }
+
+img.choose-color {
+  position: absolute;
+}

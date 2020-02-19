@@ -16,7 +16,14 @@
         <form id="login">
           <label for="username">Enter your username</label>
           <div class="input-text">
-            <input type="text" name="username" id="username" />
+            <input
+              type="text"
+              name="username"
+              id="username"
+              pattern="^([^\s]+.*[^\s]+)$"
+              minlength="3"
+              required
+            />
           </div>
           <label for="room-password">Enter the room's password</label>
           <div class="input-text">

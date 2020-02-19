@@ -1,6 +1,6 @@
 import * as WebSocket from 'ws';
 import * as fs from 'fs';
-import { Card, CardType } from 'uno-shared';
+import { Card, CardType, CardColor } from 'uno-shared';
 import * as _ from 'lodash';
 import { DrawPile } from './DrawPile';
 
@@ -15,8 +15,15 @@ export class WebSocketConnection {
   static _drawPile: DrawPile;
   private static _discardPileCard: Card;
   private static _playingDirectionReversed: boolean = false;
+  private static _isPlaying: boolean = false;
+  private _blackCard: boolean = false;
+
   connect(ws: WebSocket): void {
     this._ws = ws;
+    if (WebSocketConnection._isPlaying) {
+      this.sendMessage('is-playing', null);
+      return;
+    }
     WebSocketConnection._allWebSockets.push(this);
     WebSocketConnection.playerJoined();
     this._ws.on('close', this.onClose.bind(this));
@@ -28,6 +35,33 @@ export class WebSocketConnection {
     this._value = JSON.parse(message).message;
     switch (event) {
       case 'login':
+        const login: { username: string; password: string } = JSON.parse(
+          this._value
+        );
+        if (login.username === '') {
+          this.sendMessage('username', 'empty');
+          return;
+        }
+
+        if (!login.username.match(/^([^\s]+.*[^\s]+)$/)) {
+          this.sendMessage('username', 'whitespace');
+          return;
+        }
+
+        if (login.username.length < 3) {
+          this.sendMessage('username', 'too-short');
+          return;
+        }
+
+        if (
+          WebSocketConnection._allWebSockets.find(
+            (webSocket: WebSocketConnection) =>
+              webSocket._username === login.username
+          )
+        ) {
+          this.sendMessage('username', 'name-duplicate');
+          return;
+        }
         fs.readFile('./room_password.txt', this.onFileRead.bind(this));
         break;
       case 'game-start-request':
@@ -35,6 +69,7 @@ export class WebSocketConnection {
           WebSocketConnection._drawPile = new DrawPile();
           for (const webSocket of WebSocketConnection._playersInRoom) {
             webSocket.sendMessage('game-start', null);
+            WebSocketConnection._isPlaying = true;
             for (let i = 0; i < 7; i++) webSocket.drawCard();
           }
           WebSocketConnection._discardPileCard = WebSocketConnection._drawPile.drawFirstCard();
@@ -47,14 +82,15 @@ export class WebSocketConnection {
         break;
       case 'card-clicked':
         if (!this.checkTurn()) return;
+        if (this._blackCard) {
+          this.sendMessage('error', 'card-cannot-be-played');
+          return;
+        }
         const playedCard: Card = this._cards[+this._value];
 
         const blackCard: boolean =
           playedCard.cardType === CardType.ChooseColor ||
-          playedCard.cardType === CardType.Take4 ||
-          WebSocketConnection._discardPileCard.cardType ===
-            CardType.ChooseColor ||
-          WebSocketConnection._discardPileCard.cardType === CardType.Take4;
+          playedCard.cardType === CardType.Take4;
 
         const bothNumbers: boolean =
           WebSocketConnection._discardPileCard.cardType === CardType.Number &&
@@ -67,15 +103,19 @@ export class WebSocketConnection {
           WebSocketConnection._discardPileCard.cardColor !==
           playedCard.cardColor;
 
-        const notSameNumbers: boolean =
-          WebSocketConnection._discardPileCard.cardNumber !==
+        const sameNumbers: boolean =
+          WebSocketConnection._discardPileCard.cardNumber ===
           playedCard.cardNumber;
 
+        const chooseColorCard: boolean =
+          WebSocketConnection._discardPileCard.cardType === CardType.Take4 ||
+          WebSocketConnection._discardPileCard.cardType ===
+            CardType.ChooseColor;
         if (
           !blackCard &&
           (bothNumbers || notSameCardType) &&
           notSameColor &&
-          notSameNumbers
+          !(sameNumbers || chooseColorCard)
         ) {
           this.sendMessage('error', 'card-cannot-be-played');
           return;
@@ -98,19 +138,33 @@ export class WebSocketConnection {
         this.receiveCards();
         if (playedCard.cardType === CardType.Reverse)
           WebSocketConnection._playingDirectionReversed = !WebSocketConnection._playingDirectionReversed;
-          // Commented out for the commit; this is the WIP for the black cards
-        /* if (
+        if (
           playedCard.cardType === CardType.ChooseColor ||
           playedCard.cardType === CardType.Take4
         ) {
+          this._blackCard = true;
           this.sendMessage('black-card', null);
-        } */
+        }
         this.nextTurn(playedCard);
+        if (
+          WebSocketConnection._playersInRoom.find(
+            (webSocket: WebSocketConnection) => webSocket._cards.length === 0
+          )
+        ) {
+          for (const webSocket of WebSocketConnection._playersInRoom) {
+            webSocket.sendMessage('game-over', null);
+            WebSocketConnection._isPlaying = false;
+          }
+        }
         break;
       case 'draw-card':
         if (!this.checkTurn()) return;
         this.drawCard();
         this.nextTurn();
+        break;
+      case 'choose-color':
+        WebSocketConnection._discardPileCard.cardColor = Object.values(CardColor).find((value: CardColor) => value === this._value);
+        this._blackCard = false;
         break;
     }
   }
@@ -137,6 +191,8 @@ export class WebSocketConnection {
       'player-left',
       JSON.stringify(playersInRoom)
     );
+    if (WebSocketConnection._playersInRoom.length === 0)
+      WebSocketConnection._isPlaying = false;
   }
 
   private removePlayerFromArray(
@@ -156,15 +212,6 @@ export class WebSocketConnection {
       this._value
     );
 
-    if (
-      WebSocketConnection._allWebSockets.find(
-        (webSocket: WebSocketConnection) =>
-          webSocket._username === value.username
-      )
-    ) {
-      this.sendMessage('password', 'name-duplicate');
-      return;
-    }
     if (data.toString() === value.password || true) {
       this._username = value.username;
       this.sendMessage('password', 'correct');

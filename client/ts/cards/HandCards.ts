@@ -94,7 +94,7 @@ export class HandCards {
         typeAndNumber.value = '';
         break;
     }
-    return `<div class="card"><div class="card-child"><img src="${
+    return `<div class="card"><div class="card-child"><img class="card" src="${
       Resources[card.cardColor]
     }" alt="${card.cardColor}"/><div class="symbol ${card.cardColor}">${
       typeAndNumber.value

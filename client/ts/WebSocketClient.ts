@@ -151,7 +151,36 @@ export class WebSocketClient {
         ).remove();
         break;
       case 'black-card':
-        //TODO: Implement black card handling
+        for (const color of Object.keys(Resources['choose-color'])) {
+          console.log(color);
+
+          $('div.discard-pile > div.card > div.card-child > img.card').after(
+            `<img class="choose-color" src="${Resources['choose-color'][color]}" alt="${color}" />`
+          );
+
+          $('img.choose-color').on('click', this.onColorChooseClick);
+        }
+        break;
+      case 'username':
+        switch (this._value) {
+          case 'empty':
+            new Message('The username field is required', 'error');
+            break;
+          case 'whitespace':
+            new Message(
+              'You are not allowed to use a username that starts and/or ends with a whitespace',
+              'error'
+            );
+            break;
+          case 'too-short':
+            new Message('This username is too short', 'error');
+            break;
+        }
+      case 'is-playing':
+        new Message('A game is ongoing', 'error');
+        break;
+      case 'game-over':
+        location.reload();
         break;
     }
   }
@@ -201,5 +230,22 @@ export class WebSocketClient {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  private onColorChooseClick(event: JQuery.Event): void {
+    const x: number = (event.pageX + 5 / 3 - $(this).offset().left) / $(this).width();
+    const y: number = (event.pageY + 2 - $(this).offset().top) / $(this).height();
+
+    const angle: number = 20.7;
+    const radians: number = (angle / 180) * Math.PI;
+
+    const middleX: number = Math.tan(-radians) * (y - 0.5) + 0.5;
+    const middleY: number = Math.tan(radians) * (x - 0.5) + 0.5;
+    let color: CardColor;
+    if (x <= middleX && y <= middleY) color = CardColor.Red;
+    else if (x > middleX && y <= middleY) color = CardColor.Blue;
+    else if (x > middleX && y > middleY) color = CardColor.Green;
+    else color = CardColor.Yellow;
+    WebSocketClient.sendMessage('choose-color', color);
   }
 }
