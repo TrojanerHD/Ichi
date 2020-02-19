@@ -246,10 +246,15 @@ export class WebSocketClient {
     const color: string = Object.keys(
       Resources['choose-color']
     ).find((color: string) => $(this).hasClass(color));
-    if (color !== undefined) {
-      WebSocketClient.sendMessage('choose-color', CardColor[color]);
+    if (color) {
+      WebSocketClient.sendMessage(
+        'choose-color',
+        Object.entries(CardColor).find((e: [string, CardColor]) => e[1].toString() === color)[0]
+      );
+      $('body  > div.choose-color').remove();
     }
   }
+
   set username(username: string) {
     this._username = username;
   }

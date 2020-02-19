@@ -115,10 +115,11 @@ export class WebSocketConnection {
           WebSocketConnection._discardPileCard.cardType ===
             CardType.ChooseColor;
         if (
-          !blackCard &&
-          (bothNumbers || notSameCardType) &&
-          notSameColor &&
-          !(sameNumbers || chooseColorCard)
+          (!blackCard &&
+            (bothNumbers || notSameCardType) &&
+            notSameColor &&
+            !sameNumbers) ||
+          notSameColor && chooseColorCard
         ) {
           this.sendMessage('error', 'card-cannot-be-played');
           return;
