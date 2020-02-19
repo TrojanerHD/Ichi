@@ -21,6 +21,7 @@ export class WebSocketClient {
   connect(): void {
     WebSocketClient._websocket = new WebSocket('ws://localhost:1337');
     WebSocketClient._websocket.onmessage = this.onMessage.bind(this);
+    WebSocketClient._websocket.onerror = this.onError.bind(this);
   }
 
   public static sendMessage(event: string, message: string): void {
@@ -156,6 +157,10 @@ export class WebSocketClient {
         //TODO: Implement black card handling
         break;
     }
+  }
+
+  private onError(error: ErrorEvent){
+    new Message('A websocket error has occurred', 'error');
   }
 
   private orderOtherHandCards() {
