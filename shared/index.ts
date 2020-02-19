@@ -4,12 +4,12 @@ export interface WebSocketMessage {
 }
 
 export enum CardColor {
-  Red = 'red',
-  Blue = 'blue',
-  Green = 'green',
-  Yellow = 'yellow',
-  Black = 'black',
-  Back = 'back',
+  Red,
+  Blue,
+  Green,
+  Yellow,
+  Black,
+  Back
 }
 
 export enum CardType {
@@ -18,7 +18,7 @@ export enum CardType {
   Reverse = 'reverse',
   Take2 = 'take2',
   Take4 = 'take4',
-  ChooseColor = 'chooseColor',
+  ChooseColor = 'chooseColor'
 }
 
 export interface Card {

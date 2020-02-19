@@ -11,17 +11,19 @@ interface otherHandCards {
 
 export class WebSocketClient {
   private static _websocket: WebSocket;
+
   private _allPlayers: string[] = [];
   private _handCards: HandCards = new HandCards();
   private _otherHandCards: otherHandCards[] = [];
   private _value: string;
-  _username: string;
+  private _username: string;
+
   connect(): void {
     WebSocketClient._websocket = new WebSocket('ws://localhost:1337');
     WebSocketClient._websocket.onmessage = this.onMessage.bind(this);
   }
 
-  static sendMessage(event: string, message: string): void {
+  public static sendMessage(event: string, message: string): void {
     WebSocketClient._websocket.send(JSON.stringify({ event, message }));
   }
 
@@ -201,5 +203,9 @@ export class WebSocketClient {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  set username(username: string) {
+    this._username = username;
   }
 }

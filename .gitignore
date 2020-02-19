@@ -3,6 +3,7 @@ node_modules
 yarn-error.log
 yarn.lock
 .idea
+.vscode/settings.json
 client/dist/main.js
 client/dist/main.js.map
 client/dist/**/*.d.ts

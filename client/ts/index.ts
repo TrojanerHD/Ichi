@@ -21,7 +21,7 @@ function onSubmit(event: Event) {
     new Message('A name is required', 'error');
     return;
   }
-  ws._username = username;
+  ws.username = username;
   WebSocketClient.sendMessage(
     'login',
     JSON.stringify({
