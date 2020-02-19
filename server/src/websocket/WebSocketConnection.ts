@@ -1,6 +1,6 @@
 import * as WebSocket from 'ws';
 import * as fs from 'fs';
-import { Card, CardType } from 'uno-shared';
+import { Card, CardType, WebSocketMessage } from 'uno-shared';
 import * as _ from 'lodash';
 import { DrawPile } from '../DrawPile';
 
@@ -30,7 +30,7 @@ export class WebSocketConnection {
   }
 
   private onMessage(message: string): void {
-    const json: any = JSON.parse(message);
+    const json: WebSocketMessage = JSON.parse(message);
     this._value = json.message;
 
     switch (json.event) {
