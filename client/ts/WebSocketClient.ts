@@ -123,6 +123,12 @@ export class WebSocketClient {
           case 'card-cannot-be-played':
             new Message('This card cannot be played', 'error');
             break;
+          case 'cannot-draw':
+            new Message(
+              'You cannot draw a card while being in color selection',
+              'error'
+            );
+            break;
         }
         break;
       case 'card-played':
@@ -154,15 +160,12 @@ export class WebSocketClient {
         ).remove();
         break;
       case 'black-card':
-        for (const color of Object.keys(Resources['choose-color'])) {
-          console.log(color);
-
-          $('div.discard-pile > div.card > div.card-child > img.card').after(
-            `<img class="choose-color" src="${Resources['choose-color'][color]}" alt="${color}" />`
-          );
-
-          $('img.choose-color').on('click', this.onColorChooseClick);
-        }
+        let message: string =
+          '<div class="choose-color">Choose your color<br/>';
+        for (const color of Object.keys(Resources['choose-color']))
+          message += `<div class="color-text ${color}">${color.toUpperCase()}</div> `;
+        $('body').append(message.substr(0, message.length - 1));
+        $('div.color-text').on('click', this.onColorChooseClick);
         break;
       case 'username':
         switch (this._value) {
@@ -239,21 +242,13 @@ export class WebSocketClient {
       .replace(/"/g, '&quot;');
   }
 
-  private onColorChooseClick(event: JQuery.Event): void {
-    const x: number = (event.pageX + 5 / 3 - $(this).offset().left) / $(this).width();
-    const y: number = (event.pageY + 2 - $(this).offset().top) / $(this).height();
-
-    const angle: number = 20.7;
-    const radians: number = (angle / 180) * Math.PI;
-
-    const middleX: number = Math.tan(-radians) * (y - 0.5) + 0.5;
-    const middleY: number = Math.tan(radians) * (x - 0.5) + 0.5;
-    let color: CardColor;
-    if (x <= middleX && y <= middleY) color = CardColor.Red;
-    else if (x > middleX && y <= middleY) color = CardColor.Blue;
-    else if (x > middleX && y > middleY) color = CardColor.Green;
-    else color = CardColor.Yellow;
-    WebSocketClient.sendMessage('choose-color', color);
+  private onColorChooseClick(): void {
+    const color: string = Object.keys(
+      Resources['choose-color']
+    ).find((color: string) => $(this).hasClass(color));
+    if (color !== undefined) {
+      WebSocketClient.sendMessage('choose-color', CardColor[color]);
+    }
   }
   set username(username: string) {
     this._username = username;

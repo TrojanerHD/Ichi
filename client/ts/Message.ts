@@ -3,8 +3,7 @@ import $ from 'jquery';
 export class Message {
   private static _errorElement: JQuery<HTMLElement>;
   private static _skipTimeout: boolean = false;
-  
-  constructor(message: string, type: string) {
+  constructor(message: string, type: 'error' | 'info') {
     if (Message._errorElement) {
       Message._errorElement.remove();
       Message._skipTimeout = true;

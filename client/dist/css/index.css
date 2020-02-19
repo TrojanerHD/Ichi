@@ -237,3 +237,32 @@ div.discard-pile {
 img.choose-color {
   position: absolute;
 }
+
+div.color-text {
+  display: inline;
+  cursor: pointer;
+}
+
+div.choose-color {
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background-color: #121212;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+div.color-text.red {
+  color: #ff0000;
+}
+div.color-text.green {
+  color: #077c00;
+}
+div.color-text.blue {
+  color: #0004a7
+}
+div.color-text.yellow {
+  color: #ffb22c
+}
