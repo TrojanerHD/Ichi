@@ -6,8 +6,8 @@ You need to host this game either on your machine or on a server.
 
 ### Hosting on your local machine
 1. Download this [repository's zip](https://github.com/TrojanerHD/Ichi/archive/master.zip)
-2. Extract the zip's content in an empty folder and make sure you have installed yarn or npm. Double click `install.sh` if you are on Unix (e. g. Linux or macOS) or `install.bat` if you are on Windows. After the terminal closed, head over to the next step
-3. Execute `start-server.sh` or `start-server.bat` (further details: see point 2)
+2. Extract the zip's content in an empty folder and make sure you have installed yarn or npm. Double click `build.sh` if you are on Unix (e. g. Linux or macOS) or `build.bat` if you are on Windows. After the terminal closed, head over to the next step
+3. Execute `run-server.sh` or `run-server.bat` and afterward `run-client.sh` or `run-client.bat` (further details: see point 2)
 4. Open a browser and type `localhost` in the address bar
 5. To let your friends join, a third party application is required. In this example, I am using [ngrok](https://ngrok.com/). Note that I can **not** guarantee the safety/security of ngrok. Do this on your account and do it only if you know what you are doing
 6. Create an `ngrok` account, download the ngrok executable and connect your account with it. The [tutorial on the ngrok website](https://ngrok.com/download) explains that quite well. 
