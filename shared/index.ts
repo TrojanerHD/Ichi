@@ -26,3 +26,5 @@ export interface Card {
   cardNumber?: number;
   cardType: CardType;
 }
+
+export const WEBSOCKETPORT = 1337;

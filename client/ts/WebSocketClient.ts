@@ -1,4 +1,4 @@
-import { Card, CardColor, CardType } from 'uno-shared';
+import { Card, CardColor, WEBSOCKETPORT } from 'uno-shared';
 import { Message } from './Message';
 import $ from 'jquery';
 import { HandCards } from './cards/HandCards';
@@ -19,7 +19,7 @@ export class WebSocketClient {
   private _username: string;
 
   connect(): void {
-    WebSocketClient._websocket = new WebSocket('ws://localhost:1337');
+    WebSocketClient._websocket = new WebSocket(`ws://localhost:${WEBSOCKETPORT.toString()}`);
     WebSocketClient._websocket.onmessage = this.onMessage.bind(this);
     WebSocketClient._websocket.onerror = this.onError.bind(this);
   }
