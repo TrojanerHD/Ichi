@@ -68,7 +68,9 @@ export class WebSocketConnection {
           this.sendMessage('username', 'name-duplicate');
           return;
         }
-        fs.readFile('./room_password.txt', this.onFileRead.bind(this));
+        const roomPasswordFile: string = './room_password.txt';
+        if (!fs.existsSync('')) fs.writeFileSync(roomPasswordFile, '', 'utf-8');
+        fs.readFile(roomPasswordFile, 'utf-8', this.onFileRead.bind(this));
         break;
       case 'game-start-request':
         if (WebSocketConnection._playersInRoom[0] === this) {
