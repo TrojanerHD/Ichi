@@ -69,7 +69,7 @@ export class WebSocketConnection {
           return;
         }
         const roomPasswordFile: string = './room_password.txt';
-        if (!fs.existsSync('')) fs.writeFileSync(roomPasswordFile, '', 'utf-8');
+        if (!fs.existsSync(roomPasswordFile)) fs.writeFileSync(roomPasswordFile, '', 'utf-8');
         fs.readFile(roomPasswordFile, 'utf-8', this.onFileRead.bind(this));
         break;
       case 'game-start-request':
