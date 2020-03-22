@@ -49,7 +49,7 @@ export class WebSocketConnection {
           return;
         }
 
-        if (!login.username.match(/^([^\s]+.*[^\s]+)$/)) {
+        if (!login.username.match(/^([^\s​]+.*[^\s​]+)$/)) {
           this.sendMessage('username', 'whitespace');
           return;
         }

@@ -184,6 +184,7 @@ export class WebSocketClient {
             new Message('This username is too short', 'error');
             break;
         }
+        break;
       case 'is-playing':
         new Message('A game is ongoing', 'error');
         break;
