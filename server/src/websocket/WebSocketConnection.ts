@@ -150,6 +150,17 @@ export class WebSocketConnection {
           this.sendMessage('black-card', null);
         }
         this.nextTurn(playedCard);
+        let drawCount: number = 0;
+        switch (playedCard.cardType) {
+          case CardType.Take4:
+            drawCount = 4;
+            break;
+          case CardType.Take2:
+            drawCount = 2;
+            break;
+        }
+        for (let i = 0; i < drawCount; i++) WebSocketConnection._playerTurn.drawCard();
+        if (drawCount !== 0) this.nextTurn();
         if (
           WebSocketConnection._playersInRoom.find(
             (webSocket: WebSocketConnection) => webSocket._cards.length === 0
