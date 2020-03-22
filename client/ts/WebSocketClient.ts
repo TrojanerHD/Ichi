@@ -19,7 +19,7 @@ export class WebSocketClient {
   private _username: string;
 
   connect(): void {
-    WebSocketClient._websocket = new WebSocket(`ws://localhost:${WEBSOCKETPORT.toString()}`);
+    WebSocketClient._websocket = new WebSocket(`ws://${window.location.hostname}:${WEBSOCKETPORT.toString()}`);
     WebSocketClient._websocket.onmessage = this.onMessage.bind(this);
     WebSocketClient._websocket.onerror = this.onError.bind(this);
   }
