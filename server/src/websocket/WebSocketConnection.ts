@@ -232,7 +232,7 @@ export class WebSocketConnection {
       this._value
     );
 
-    if (data.toString() === value.password || true) {
+    if (data.toString() === value.password) {
       this._username = value.username;
       this.sendMessage('password', 'correct');
       WebSocketConnection._playersInRoom.push(this);
