@@ -12,8 +12,7 @@ export class CardClickedHandler extends MessageHandler {
       this.sendMessage('error', 'card-cannot-be-played');
       return;
     }
-
-    delete this._connection._cards[+value];
+    this._connection._cards.splice(+value, 1);
 
     WebSocketConnection._discardPileCard = playedCard;
     WebSocketConnection.sendToEveryoneInArray(
