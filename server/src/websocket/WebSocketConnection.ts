@@ -69,7 +69,8 @@ export class WebSocketConnection {
           return;
         }
         const roomPasswordFile: string = './room_password.txt';
-        if (!fs.existsSync(roomPasswordFile)) fs.writeFileSync(roomPasswordFile, '', 'utf-8');
+        if (!fs.existsSync(roomPasswordFile))
+          fs.writeFileSync(roomPasswordFile, '', 'utf-8');
         fs.readFile(roomPasswordFile, 'utf-8', this.onFileRead.bind(this));
         break;
       case 'game-start-request':
@@ -121,7 +122,7 @@ export class WebSocketConnection {
             (bothNumbers || notSameCardType) &&
             notSameColor &&
             !sameNumbers) ||
-          notSameColor && chooseColorCard
+          (notSameColor && chooseColorCard)
         ) {
           this.sendMessage('error', 'card-cannot-be-played');
           return;
@@ -143,7 +144,8 @@ export class WebSocketConnection {
         );
         this.receiveCards();
         if (playedCard.cardType === CardType.Reverse)
-          WebSocketConnection._playingDirectionReversed = !WebSocketConnection._playingDirectionReversed;
+          if (WebSocketConnection._playersInRoom.length === 2) this.nextTurn();
+        WebSocketConnection._playingDirectionReversed = !WebSocketConnection._playingDirectionReversed;
         if (
           playedCard.cardType === CardType.ChooseColor ||
           playedCard.cardType === CardType.Take4
@@ -161,7 +163,8 @@ export class WebSocketConnection {
             drawCount = 2;
             break;
         }
-        for (let i = 0; i < drawCount; i++) WebSocketConnection._playerTurn.drawCard();
+        for (let i = 0; i < drawCount; i++)
+          WebSocketConnection._playerTurn.drawCard();
         if (drawCount !== 0) this.nextTurn();
         if (
           WebSocketConnection._playersInRoom.find(
