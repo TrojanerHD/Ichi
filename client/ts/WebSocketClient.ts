@@ -107,7 +107,7 @@ export class WebSocketClient {
         const valueValue = JSON.parse(this._value).value;
         if (valueType === 'user') {
           for (let i = 0; i < this._otherHandCards.length; i++) {
-            const handCards = this._otherHandCards[i];
+            const handCards: otherHandCards = this._otherHandCards[i];
             if (handCards.player === valueValue)
               handCards.handCards.addCard(i + 2);
           }
@@ -153,7 +153,7 @@ export class WebSocketClient {
         let player: string = '1';
         if (this._value !== null)
           for (let i = 0; i < this._otherHandCards.length; i++) {
-            const handCards = this._otherHandCards[i];
+            const handCards: otherHandCards = this._otherHandCards[i];
             if (handCards.player === this._value) player = (i + 2).toString();
           }
 
